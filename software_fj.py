@@ -293,8 +293,6 @@ class Servicio(Entidad):
 
 
 # SERVICIO ESPECIALIZADO # 1 --> RESERVA DE SALAS, se aplica herencia
-
-
 class ReservaSala(Servicio):
 
     # Constructor de la clase
@@ -477,8 +475,6 @@ class AlquilerEquipo(Servicio):
 
 
 # SERVICIO ESPECIALIZADO 3 -->  ASESORIAS, se aplica herencias
-
-
 class AsesoriaEspecializada(Servicio):
 
     # Constructor de la clase
@@ -577,8 +573,6 @@ class AsesoriaEspecializada(Servicio):
 
 
 # CLASE RESERVA
-
-
 class Reserva(Entidad):
 
     # Constructor de la clase
@@ -1072,8 +1066,6 @@ def iniciar_interfaz():
             )
 
         # MÓDULO DE SERVICIOS
-
-        # MÓDULO DE SERVICIOS
         if nombre == "Servicios":
 
             # Crear tarjeta principal del módulo
@@ -1082,9 +1074,16 @@ def iniciar_interfaz():
 
             # Encabezado del formulario
             encabezado_servicios = tk.Frame(tarjeta_servicios, bg=BLANCO)
-            encabezado_servicios.pack(fill="x", pady=(0, 20))
+            encabezado_servicios.pack(fill="x", pady=(0, 25))
 
             # Título del formulario
+            tk.Label(
+                encabezado_servicios,
+                text="Registrar nuevo servicio",
+                font=("Segoe UI", 16, "bold"),
+                bg=BLANCO,
+                fg=AZUL_PRINCIPAL,
+            ).pack(side="left", anchor="w")
 
             # Botón para registrar el servicio
             boton_registrar_servicio = tk.Button(
@@ -1101,15 +1100,6 @@ def iniciar_interfaz():
                 cursor="hand2",
             )
             boton_registrar_servicio.pack(side="right")
-
-            # # Título del formulario
-            # tk.Label(
-            #     tarjeta_servicios,
-            #     text="Registrar nuevo servicio",
-            #     font=("Segoe UI", 16, "bold"),
-            #     bg=BLANCO,
-            #     fg=AZUL_PRINCIPAL,
-            # ).pack(anchor="w", side="left")
 
             # Fila superior para identificar el servicio
             fila_identificacion = tk.Frame(tarjeta_servicios, bg=BLANCO)
@@ -1157,6 +1147,10 @@ def iniciar_interfaz():
             )
             tipo_servicio.pack(anchor="w", pady=(7, 20), ipady=5)
 
+            # Contenedor para los campos específicos del servicio
+            contenedor_especifico = tk.Frame(marco_tipo, bg=BLANCO)
+            contenedor_especifico.pack(fill="x", pady=(0, 10))
+
             # Campo para ingresar el nombre del servicio
             tk.Label(
                 marco_nombre,
@@ -1176,6 +1170,111 @@ def iniciar_interfaz():
                 entrada_nombre_servicio.delete(0, tk.END)
 
             tipo_servicio.bind("<<ComboboxSelected>>", limpiar_nombre_servicio)
+
+            # Campo para la capacidad máxima de una sala
+            etiqueta_capacidad = tk.Label(
+                contenedor_especifico,
+                text="Capacidad máxima:",
+                bg=BLANCO,
+                fg=TEXTO,
+            )
+
+            entrada_capacidad = ttk.Entry(
+                contenedor_especifico,
+                width=30,
+            )
+
+            # Campo para las unidades disponibles de equipos
+            etiqueta_unidades = tk.Label(
+                contenedor_especifico,
+                text="Unidades disponibles:",
+                bg=BLANCO,
+                fg=TEXTO,
+            )
+
+            entrada_unidades = ttk.Entry(
+                contenedor_especifico,
+                width=30,
+            )
+
+            # Campo para la especialidad de una asesoría
+            etiqueta_especialidad = tk.Label(
+                contenedor_especifico,
+                text="Especialidad:",
+                bg=BLANCO,
+                fg=TEXTO,
+            )
+
+            entrada_especialidad = ttk.Entry(
+                contenedor_especifico,
+                width=30,
+            )
+            # Campo para la modalidad de una asesoría
+            etiqueta_modalidad = tk.Label(
+                contenedor_especifico,
+                text="Modalidad:",
+                bg=BLANCO,
+                fg=TEXTO,
+            )
+            entrada_modalidad = ttk.Combobox(
+                contenedor_especifico,
+                values=["Presencial", "Virtual"],
+                state="readonly",
+                width=27,
+                font=("Segoe UI", 10),
+            )
+
+            # Mostrar los campos específicos según el tipo de servicio
+            def mostrar_campos_especificos(event=None):
+
+                # Ocultar todos los campos específicos
+                for widget in contenedor_especifico.winfo_children():
+                    widget.grid_forget()
+
+                # Limpiar los valores de los campos específicos
+                entrada_capacidad.delete(0, tk.END)
+                entrada_unidades.delete(0, tk.END)
+                entrada_especialidad.delete(0, tk.END)
+                entrada_modalidad.delete(0, tk.END)
+                entrada_tarifa_servicio.delete(0, tk.END)
+
+                # Obtener el tipo de servicio seleccionado
+                tipo = tipo_servicio.get()
+
+                # Mostrar el campo de capacidad para reservas de salas
+                if tipo == "Reserva de sala":
+                    etiqueta_capacidad.grid(row=0, column=0, sticky="w", padx=(0, 15))
+                    entrada_capacidad.grid(
+                        row=1, column=0, sticky="w", padx=(0, 15), pady=(5, 0)
+                    )
+
+                # Mostrar el campo de unidades para alquiler de equipos
+                elif tipo == "Alquiler de equipos":
+                    etiqueta_unidades.grid(row=0, column=0, sticky="w", padx=(0, 15))
+                    entrada_unidades.grid(
+                        row=1, column=0, sticky="w", padx=(0, 15), pady=(5, 0)
+                    )
+
+                # Mostrar los campos de especialidad y modalidad para asesorías
+                elif tipo == "Asesoría especializada":
+                    etiqueta_especialidad.grid(
+                        row=0, column=0, sticky="w", padx=(0, 15)
+                    )
+                    entrada_especialidad.grid(
+                        row=1, column=0, sticky="w", padx=(0, 20), pady=(5, 0)
+                    )
+
+                    etiqueta_modalidad.grid(row=0, column=1, sticky="w", padx=(0, 15))
+                    entrada_modalidad.grid(
+                        row=1, column=1, sticky="w", padx=(0, 15), pady=(5, 0)
+                    )
+
+            # Asociar el evento de selección con la función
+            tipo_servicio.bind(
+                "<<ComboboxSelected>>",
+                mostrar_campos_especificos,
+                add="+",
+            )
 
             # Campo para ingresar la tarifa base del servicio
             tk.Label(
@@ -1231,29 +1330,6 @@ def iniciar_interfaz():
                 anchor="w", fill="both", expand=True, pady=(7, 15)
             )
 
-            # Contenedor para los campos específicos de cada servicio
-            contenedor_especifico = tk.Frame(tarjeta_servicios, bg=BLANCO)
-            contenedor_especifico.pack(fill="x", pady=(15, 5))
-
-            # Contenedor para los botones de acción
-            marco_botones_servicio = tk.Frame(tarjeta_servicios, bg=BLANCO)
-            marco_botones_servicio.pack(fill="x", pady=(20, 0))
-
-            # Botón para registrar el servicio
-            boton_registrar_servicio = tk.Button(
-                marco_botones_servicio,
-                text="+ Registrar servicio",
-                font=("Segoe UI", 10, "bold"),
-                bg=AZUL_PRINCIPAL,
-                fg=BLANCO,
-                activebackground=AZUL_OSCURO,
-                activeforeground=BLANCO,
-                relief="flat",
-                padx=20,
-                pady=10,
-                cursor="hand2",
-            )
-
         # MÓDULO DE CLIENTES
         if nombre == "Clientes":
 
@@ -1306,26 +1382,6 @@ def iniciar_interfaz():
 
             entrada_telefono = ttk.Entry(formulario, width=18)
             entrada_telefono.grid(row=1, column=3, padx=5, pady=5)
-
-            # Crear tabla de clientes
-            #            tabla_clientes = ttk.Treeview(
-            #                tabla_contenedor,
-            #                columns=("ID", "Nombre", "Correo", "Telefono"),
-            #                show="headings",
-            #                height=10,
-            #            )
-
-            #            tabla_clientes.heading("ID", text="Identificación")
-            #            tabla_clientes.heading("Nombre", text="Nombre completo")
-            #            tabla_clientes.heading("Correo", text="Correo electrónico")
-            #            tabla_clientes.heading("Telefono", text="Teléfono")
-
-            #            tabla_clientes.column("ID", width=120)
-            #            tabla_clientes.column("Nombre", width=200)
-            #            tabla_clientes.column("Correo", width=250)
-            #            tabla_clientes.column("Telefono", width=140)
-
-            #            tabla_clientes.pack(fill="both", expand=True)
 
             # Contenedor para la tabla y la barra de desplazamiento
             marco_tabla = tk.Frame(tabla_contenedor, bg=BLANCO)
