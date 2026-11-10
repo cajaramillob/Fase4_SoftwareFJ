@@ -1080,18 +1080,71 @@ def iniciar_interfaz():
             tarjeta_servicios = tk.Frame(contenido, bg=BLANCO, padx=25, pady=25)
             tarjeta_servicios.pack(fill="x", pady=10)
 
+            # Encabezado del formulario
+            encabezado_servicios = tk.Frame(tarjeta_servicios, bg=BLANCO)
+            encabezado_servicios.pack(fill="x", pady=(0, 25))
+
             # Título del formulario
             tk.Label(
-                tarjeta_servicios,
+                encabezado_servicios,
                 text="Registrar nuevo servicio",
                 font=("Segoe UI", 16, "bold"),
                 bg=BLANCO,
                 fg=AZUL_PRINCIPAL,
-            ).pack(anchor="w", pady=(0, 20))
+            ).pack(side="left", anchor="w")
+
+            # Botón para registrar el servicio
+            boton_registrar_servicio = tk.Button(
+                encabezado_servicios,
+                text="+ Registrar servicio",
+                font=("Segoe UI", 10, "bold"),
+                bg=AZUL_PRINCIPAL,
+                fg=BLANCO,
+                activebackground=AZUL_OSCURO,
+                activeforeground=BLANCO,
+                relief="flat",
+                padx=20,
+                pady=9,
+                cursor="hand2",
+            )
+            boton_registrar_servicio.pack(side="right")
+
+            # # Título del formulario
+            # tk.Label(
+            #     tarjeta_servicios,
+            #     text="Registrar nuevo servicio",
+            #     font=("Segoe UI", 16, "bold"),
+            #     bg=BLANCO,
+            #     fg=AZUL_PRINCIPAL,
+            # ).pack(anchor="w", side="left")
+
+            # Fila superior para identificar el servicio
+            fila_identificacion = tk.Frame(tarjeta_servicios, bg=BLANCO)
+            fila_identificacion.pack(fill="x", pady=(0, 20))
+
+            # Espacio para el tipo de servicio
+            marco_tipo = tk.Frame(fila_identificacion, bg=BLANCO)
+            marco_tipo.pack(side="left", fill="x", expand=True, padx=(0, 15))
+
+            # Espacio para el nombre del servicio
+            marco_nombre = tk.Frame(fila_identificacion, bg=BLANCO)
+            marco_nombre.pack(side="left", fill="x", expand=True, padx=(15, 0))
+
+            # Contenedor para organizar el formulario en dos columnas
+            contenedor_campos = tk.Frame(tarjeta_servicios, bg=BLANCO)
+            contenedor_campos.pack(fill="x", expand=True, pady=(5, 0))
+
+            # Primera columna: información general
+            columna_izquierda = tk.Frame(contenedor_campos, bg=BLANCO)
+            columna_izquierda.pack(side="left", fill="both", expand=True, padx=(0, 20))
+
+            # Segunda columna: descripción
+            columna_derecha = tk.Frame(contenedor_campos, bg=BLANCO)
+            columna_derecha.pack(side="left", fill="both", expand=True)
 
             # Campo para seleccionar el tipo de servicio
             tk.Label(
-                tarjeta_servicios,
+                marco_tipo,
                 text="Tipo de servicio:",
                 font=("Segoe UI", 10, "bold"),
                 bg=BLANCO,
@@ -1099,7 +1152,7 @@ def iniciar_interfaz():
             ).pack(anchor="w")
 
             tipo_servicio = ttk.Combobox(
-                tarjeta_servicios,
+                marco_tipo,
                 values=[
                     "Reserva de sala",
                     "Alquiler de equipos",
@@ -1113,7 +1166,7 @@ def iniciar_interfaz():
 
             # Campo para ingresar el nombre del servicio
             tk.Label(
-                tarjeta_servicios,
+                marco_nombre,
                 text="Nombre del servicio:",
                 font=("Segoe UI", 10, "bold"),
                 bg=BLANCO,
@@ -1121,7 +1174,7 @@ def iniciar_interfaz():
             ).pack(anchor="w")
 
             entrada_nombre_servicio = ttk.Entry(
-                tarjeta_servicios, width=58, font=("Segoe UI", 11)
+                marco_nombre, width=58, font=("Segoe UI", 11)
             )
             entrada_nombre_servicio.pack(anchor="w", pady=(7, 20), ipady=5)
 
@@ -1133,7 +1186,7 @@ def iniciar_interfaz():
 
             # Campo para ingresar la tarifa base del servicio
             tk.Label(
-                tarjeta_servicios,
+                columna_izquierda,
                 text="Tarifa base (COP):",
                 font=("Segoe UI", 10, "bold"),
                 bg=BLANCO,
@@ -1141,14 +1194,34 @@ def iniciar_interfaz():
             ).pack(anchor="w")
 
             entrada_tarifa_servicio = ttk.Entry(
-                tarjeta_servicios, width=58, font=("Segoe UI", 11)
+                columna_izquierda, width=58, font=("Segoe UI", 11)
             )
             entrada_tarifa_servicio.pack(anchor="w", pady=(7, 20), ipady=5)
 
+            # Título del campo de descripción
+            tk.Label(
+                columna_derecha,
+                text="Descripción del servicio:",
+                font=("Segoe UI", 10, "bold"),
+                bg=BLANCO,
+                fg=TEXTO,
+            ).pack(anchor="w")
+
+            # Texto de orientación para el usuario
+            tk.Label(
+                columna_derecha,
+                text="Describe las características, condiciones y detalles del servicio.",
+                font=("Segoe UI", 9),
+                bg=BLANCO,
+                fg=TEXTO_SECUNDARIO,
+                wraplength=400,
+                justify="left",
+            ).pack(anchor="w", pady=(5, 10))
+
             entrada_descripcion_servicio = tk.Text(
-                tarjeta_servicios,
+                columna_derecha,
                 width=58,
-                height=6,
+                height=9,
                 font=("Segoe UI", 11),
                 wrap="word",
                 bg=BLANCO,
@@ -1161,11 +1234,36 @@ def iniciar_interfaz():
                 padx=10,
                 pady=8,
             )
-            entrada_descripcion_servicio.pack(anchor="w", pady=(7, 15))
+            entrada_descripcion_servicio.pack(
+                anchor="w", fill="both", expand=True, pady=(7, 15)
+            )
+
+            # Contenedor para los campos específicos de cada servicio
+            contenedor_especifico = tk.Frame(tarjeta_servicios, bg=BLANCO)
+            contenedor_especifico.pack(fill="x", pady=(15, 5))
+            
+            
+            # Contenedor para los botones de acción
+            marco_botones_servicio = tk.Frame(tarjeta_servicios, bg=BLANCO)
+            marco_botones_servicio.pack(fill="x", pady=(20, 0))
+
+"""             # Botón para registrar el servicio
+            boton_registrar_servicio = tk.Button(
+                marco_botones_servicio,
+                text="+ Registrar servicio",
+                font=("Segoe UI", 10, "bold"),
+                bg=AZUL_PRINCIPAL,
+                fg=BLANCO,
+                activebackground=AZUL_OSCURO,
+                activeforeground=BLANCO,
+                relief="flat",
+                padx=20,
+                pady=10,
+                cursor="hand2",
+            ) """
 
         # MÓDULO DE CLIENTES
-
-        if nombre == "Clientes":
+if nombre == "Clientes":
 
             # Contenedor de la tabla
             tabla_contenedor = tk.Frame(contenido, bg=BLANCO, padx=20, pady=20)
@@ -1364,20 +1462,11 @@ def iniciar_interfaz():
 
             boton_registrar.grid(row=1, column=4, padx=(15, 5), pady=5)
 
-    #            tabla_clientes.insert(
-    #                "",
-    #                "end",
-    #                values=(
-    #                    cliente.identificador,
-    #                    cliente.nombre,
-    #                    cliente.correo,
-    #                    cliente.telefono,
-    #                ),
-    #            )
+
 
     # OPCIONES DE NAVEGACIÓN
 
-    opciones_menu = [
+opciones_menu = [
         ("▦   Dashboard", "Dashboard", "Resumen general del sistema."),
         ("♙   Clientes", "Clientes", "Administración de clientes."),
         ("▣   Servicios", "Servicios", "Administración de servicios."),
@@ -1386,7 +1475,7 @@ def iniciar_interfaz():
         ("≡   Registros", "Registros", "Consulta de eventos y errores."),
     ]
 
-    for texto, nombre, descripcion in opciones_menu:
+for texto, nombre, descripcion in opciones_menu:
 
         boton = ttk.Button(
             menu_lateral,
@@ -1399,13 +1488,13 @@ def iniciar_interfaz():
 
     # ÁREA DE TRABAJO
 
-    area_trabajo = tk.Frame(contenedor, bg=FONDO)
+area_trabajo = tk.Frame(contenedor, bg=FONDO)
 
-    area_trabajo.pack(side="left", fill="both", expand=True)
+area_trabajo.pack(side="left", fill="both", expand=True)
 
     # ENCABEZADO SUPERIOR
 
-    encabezado = tk.Frame(area_trabajo, bg=BLANCO, height=75)
+encabezado = tk.Frame(area_trabajo, bg=BLANCO, height=75)
 
     encabezado.pack(fill="x")
 
@@ -1531,13 +1620,13 @@ def iniciar_interfaz():
     ventana.mainloop()
 
 
-if __name__ == "__main__":
+    if __name__ == "__main__":
 
     # ==========================================
     # PRUEBAS INICIALES DEL SISTEMA
     # ==========================================
 
-    print("======================================")
+        print("======================================")
     print(" SOFTWARE FJ")
     print(" Sistema iniciado correctamente")
     print("======================================")
