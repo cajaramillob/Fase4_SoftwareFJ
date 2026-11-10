@@ -1082,16 +1082,9 @@ def iniciar_interfaz():
 
             # Encabezado del formulario
             encabezado_servicios = tk.Frame(tarjeta_servicios, bg=BLANCO)
-            encabezado_servicios.pack(fill="x", pady=(0, 25))
+            encabezado_servicios.pack(fill="x", pady=(0, 20))
 
             # Título del formulario
-            tk.Label(
-                encabezado_servicios,
-                text="Registrar nuevo servicio",
-                font=("Segoe UI", 16, "bold"),
-                bg=BLANCO,
-                fg=AZUL_PRINCIPAL,
-            ).pack(side="left", anchor="w")
 
             # Botón para registrar el servicio
             boton_registrar_servicio = tk.Button(
@@ -1241,13 +1234,12 @@ def iniciar_interfaz():
             # Contenedor para los campos específicos de cada servicio
             contenedor_especifico = tk.Frame(tarjeta_servicios, bg=BLANCO)
             contenedor_especifico.pack(fill="x", pady=(15, 5))
-            
-            
+
             # Contenedor para los botones de acción
             marco_botones_servicio = tk.Frame(tarjeta_servicios, bg=BLANCO)
             marco_botones_servicio.pack(fill="x", pady=(20, 0))
 
-"""             # Botón para registrar el servicio
+            # Botón para registrar el servicio
             boton_registrar_servicio = tk.Button(
                 marco_botones_servicio,
                 text="+ Registrar servicio",
@@ -1260,10 +1252,10 @@ def iniciar_interfaz():
                 padx=20,
                 pady=10,
                 cursor="hand2",
-            ) """
+            )
 
         # MÓDULO DE CLIENTES
-if nombre == "Clientes":
+        if nombre == "Clientes":
 
             # Contenedor de la tabla
             tabla_contenedor = tk.Frame(contenido, bg=BLANCO, padx=20, pady=20)
@@ -1462,11 +1454,20 @@ if nombre == "Clientes":
 
             boton_registrar.grid(row=1, column=4, padx=(15, 5), pady=5)
 
-
+    #            tabla_clientes.insert(
+    #                "",
+    #                "end",
+    #                values=(
+    #                    cliente.identificador,
+    #                    cliente.nombre,
+    #                    cliente.correo,
+    #                    cliente.telefono,
+    #                ),
+    #            )
 
     # OPCIONES DE NAVEGACIÓN
 
-opciones_menu = [
+    opciones_menu = [
         ("▦   Dashboard", "Dashboard", "Resumen general del sistema."),
         ("♙   Clientes", "Clientes", "Administración de clientes."),
         ("▣   Servicios", "Servicios", "Administración de servicios."),
@@ -1475,7 +1476,7 @@ opciones_menu = [
         ("≡   Registros", "Registros", "Consulta de eventos y errores."),
     ]
 
-for texto, nombre, descripcion in opciones_menu:
+    for texto, nombre, descripcion in opciones_menu:
 
         boton = ttk.Button(
             menu_lateral,
@@ -1488,13 +1489,13 @@ for texto, nombre, descripcion in opciones_menu:
 
     # ÁREA DE TRABAJO
 
-area_trabajo = tk.Frame(contenedor, bg=FONDO)
+    area_trabajo = tk.Frame(contenedor, bg=FONDO)
 
-area_trabajo.pack(side="left", fill="both", expand=True)
+    area_trabajo.pack(side="left", fill="both", expand=True)
 
     # ENCABEZADO SUPERIOR
 
-encabezado = tk.Frame(area_trabajo, bg=BLANCO, height=75)
+    encabezado = tk.Frame(area_trabajo, bg=BLANCO, height=75)
 
     encabezado.pack(fill="x")
 
@@ -1620,13 +1621,13 @@ encabezado = tk.Frame(area_trabajo, bg=BLANCO, height=75)
     ventana.mainloop()
 
 
-    if __name__ == "__main__":
+if __name__ == "__main__":
 
     # ==========================================
     # PRUEBAS INICIALES DEL SISTEMA
     # ==========================================
 
-        print("======================================")
+    print("======================================")
     print(" SOFTWARE FJ")
     print(" Sistema iniciado correctamente")
     print("======================================")
