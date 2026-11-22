@@ -765,6 +765,30 @@ class GestorServicios:
         # Lista para almacenar los servicios
         self._servicios = []
 
+    # GENERAR IDENTIFICADOR AUTOMÁTICO DEL SERVICIO
+
+    def generar_identificador(self):
+
+        # Obtener los números de los identificadores existentes
+        numeros = []
+
+        for servicio in self._servicios:
+
+            try:
+                numero = int(servicio.identificador.split("-")[1])
+                numeros.append(numero)
+
+            except (IndexError, ValueError):
+                continue
+
+        # Calcular el siguiente número disponible
+        siguiente_numero = max(numeros, default=0) + 1
+
+        # Construir el identificador con tres dígitos
+        identificador = f"SER-{siguiente_numero:03d}"
+
+        return identificador
+
     # Registrar un servicio
     def registrar_servicio(self, servicio):
 
@@ -1099,7 +1123,6 @@ def iniciar_interfaz():
                 pady=9,
                 cursor="hand2",
             )
-            boton_registrar_servicio.pack(side="right")
 
             # Fila superior para identificar el servicio
             fila_identificacion = tk.Frame(tarjeta_servicios, bg=BLANCO)
@@ -1290,45 +1313,88 @@ def iniciar_interfaz():
             )
             entrada_tarifa_servicio.pack(anchor="w", pady=(7, 20), ipady=5)
 
-            # Título del campo de descripción
-            tk.Label(
-                columna_derecha,
-                text="Descripción del servicio:",
-                font=("Segoe UI", 10, "bold"),
-                bg=BLANCO,
-                fg=TEXTO,
-            ).pack(anchor="w")
+            # FUNCIÓN PARA REGISTRAR UN SERVICIO
+            def registrar_servicio_interfaz():
 
-            # Texto de orientación para el usuario
-            tk.Label(
-                columna_derecha,
-                text="Describe las características, condiciones y detalles del servicio.",
-                font=("Segoe UI", 9),
-                bg=BLANCO,
-                fg=TEXTO_SECUNDARIO,
-                wraplength=400,
-                justify="left",
-            ).pack(anchor="w", pady=(5, 10))
+                try:
+                    # Obtener los datos generales del formulario
+                    tipo = tipo_servicio.get()
+                    nombre_servicio = entrada_nombre_servicio.get().strip()
+                    tarifa = float(entrada_tarifa_servicio.get())
 
-            entrada_descripcion_servicio = tk.Text(
-                columna_derecha,
-                width=58,
-                height=9,
-                font=("Segoe UI", 11),
-                wrap="word",
-                bg=BLANCO,
-                fg=TEXTO,
-                bd=1,
-                relief="solid",
-                highlightthickness=1,
-                highlightbackground="#CBD5E1",
-                highlightcolor=AZUL_PRINCIPAL,
-                padx=10,
-                pady=8,
-            )
-            entrada_descripcion_servicio.pack(
-                anchor="w", fill="both", expand=True, pady=(7, 15)
-            )
+                    # Verificar que se haya seleccionado un tipo
+                    if not tipo:
+                        raise DatosInvalidosError(
+                            "Debe seleccionar un tipo de servicio."
+                        )
+
+                    # Generar el identificador automático
+                    identificador = gestor_servicios.generar_identificador()
+
+                    # Crear el servicio según el tipo seleccionado
+                    if tipo == "Reserva de sala":
+
+                        capacidad = int(entrada_capacidad.get())
+
+                        servicio = ReservaSala(
+                            identificador, nombre_servicio, tarifa, capacidad
+                        )
+
+                    elif tipo == "Alquiler de equipos":
+
+                        unidades = int(entrada_unidades.get())
+
+                        servicio = AlquilerEquipo(
+                            identificador, nombre_servicio, tarifa, unidades
+                        )
+
+                    elif tipo == "Asesoría especializada":
+
+                        especialidad = entrada_especialidad.get().strip()
+                        modalidad = entrada_modalidad.get()
+
+                        servicio = AsesoriaEspecializada(
+                            identificador,
+                            nombre_servicio,
+                            tarifa,
+                            especialidad,
+                            modalidad,
+                        )
+
+                    else:
+                        raise DatosInvalidosError(
+                            "El tipo de servicio seleccionado no es válido."
+                        )
+
+                    # Registrar el servicio en el gestor
+                    resultado = gestor_servicios.registrar_servicio(servicio)
+
+                    # Mostrar confirmación
+                    messagebox.showinfo(
+                        "Registro exitoso",
+                        f"{resultado}\nIdentificador: {identificador}",
+                    )
+
+                    # Limpiar el formulario después del registro
+                    entrada_nombre_servicio.delete(0, tk.END)
+                    tipo_servicio.set("")
+                    mostrar_campos_especificos()
+
+                except ValueError:
+                    messagebox.showerror(
+                        "Datos inválidos",
+                        "La tarifa, capacidad o unidades deben contener valores numéricos válidos.",
+                    )
+
+                except ErrorSistema as error:
+                    messagebox.showerror("Error en el registro", str(error))
+
+            boton_registrar_servicio.pack(side="right")
+
+            boton_registrar_servicio.config(command=registrar_servicio_interfaz)
+
+            # Configurar la acción del botón
+            boton_registrar_servicio.config(command=registrar_servicio_interfaz)
 
         # MÓDULO DE CLIENTES
         if nombre == "Clientes":
@@ -2102,6 +2168,20 @@ if __name__ == "__main__":
     except ErrorSistema as error:
         print(f"Error controlado: {error}")
 
+    # Comprobar la generación automática de identificadores
+    print("\nPRUEBA DE IDENTIFICADORES AUTOMÁTICOS")
+
+    print(gestor_servicios.generar_identificador())
+    print(gestor_servicios.generar_identificador())
+    # Registrar un servicio utilizando el identificador automático
+    identificador = gestor_servicios.generar_identificador()
+
+    servicio_prueba = ReservaSala(identificador, "Sala de prueba", 50000, 10)
+
+    print(gestor_servicios.registrar_servicio(servicio_prueba))
+
+    # Comprobar el siguiente identificador
+    print("Siguiente identificador:", gestor_servicios.generar_identificador())
     # ==========================================
     # PRUEBA DEL GESTOR DE RESERVAS
     # ==========================================
