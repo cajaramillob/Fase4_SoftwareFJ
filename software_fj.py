@@ -1002,7 +1002,7 @@ def iniciar_interfaz():
         subtitulo.pack(anchor="w", pady=(5, 25))
 
         # Mostrar una tarjeta genérica, excepto en Servicios
-        if nombre != "Servicios":
+        if nombre not in ("Servicios", "Reservas"):
 
             # Crear una tarjeta de presentación
             tarjeta = tk.Frame(contenido, bg=BLANCO, padx=25, pady=25)
@@ -1400,6 +1400,335 @@ def iniciar_interfaz():
 
             # Configurar la acción del botón
             boton_registrar_servicio.config(command=registrar_servicio_interfaz)
+
+        # MODULO DE RESERVAS
+        if nombre == "Reservas":
+
+            # Tarjeta principal del modulo
+            tarjeta_reservas = tk.Frame(contenido, bg=BLANCO, padx=25, pady=25)
+            tarjeta_reservas.pack(fill="both", expand=True, pady=10)
+
+            # Encabezado
+            tk.Label(
+                tarjeta_reservas,
+                text="Registrar nueva reserva",
+                font=("Segoe UI", 16, "bold"),
+                bg=BLANCO,
+                fg=AZUL_PRINCIPAL,
+            ).pack(anchor="w", pady=(0, 20))
+
+            # Obtener clientes y servicios registrados
+            clientes_disponibles = gestor_clientes.listar_clientes()
+            servicios_disponibles = gestor_servicios.listar_servicios()
+
+            # Formulario
+            formulario_reserva = tk.Frame(tarjeta_reservas, bg=BLANCO)
+            formulario_reserva.pack(fill="x", pady=(0, 20))
+
+            # Seleccionar cliente
+            tk.Label(
+                formulario_reserva,
+                text="Cliente:",
+                font=("Segoe UI", 10, "bold"),
+                bg=BLANCO,
+                fg=TEXTO,
+            ).grid(row=0, column=0, sticky="w", padx=5)
+
+            selector_cliente = ttk.Combobox(
+                formulario_reserva,
+                state="readonly",
+                width=35,
+                font=("Segoe UI", 10),
+                values=[
+                    f"{cliente.identificador} - {cliente.nombre}"
+                    for cliente in clientes_disponibles
+                ],
+            )
+            selector_cliente.grid(row=1, column=0, padx=5, pady=8, sticky="ew")
+
+            # Seleccionar servicio
+            tk.Label(
+                formulario_reserva,
+                text="Servicio:",
+                font=("Segoe UI", 10, "bold"),
+                bg=BLANCO,
+                fg=TEXTO,
+            ).grid(row=0, column=1, sticky="w", padx=5)
+
+            selector_servicio = ttk.Combobox(
+                formulario_reserva,
+                state="readonly",
+                width=35,
+                font=("Segoe UI", 10),
+                values=[
+                    f"{servicio.identificador} - {servicio.nombre}"
+                    for servicio in servicios_disponibles
+                ],
+            )
+            selector_servicio.grid(row=1, column=1, padx=5, pady=8, sticky="ew")
+
+            # Duracion de la reserva
+            tk.Label(
+                formulario_reserva,
+                text="Duración (horas o días):",
+                font=("Segoe UI", 10, "bold"),
+                bg=BLANCO,
+                fg=TEXTO,
+            ).grid(row=2, column=0, sticky="w", padx=5, pady=(10, 0))
+
+            entrada_duracion = ttk.Entry(
+                formulario_reserva, width=38, font=("Segoe UI", 10)
+            )
+            entrada_duracion.grid(row=3, column=0, padx=5, pady=8, sticky="w")
+
+            formulario_reserva.columnconfigure(0, weight=1)
+            formulario_reserva.columnconfigure(1, weight=1)
+
+            # Tabla de reservas
+            tk.Label(
+                tarjeta_reservas,
+                text="Reservas registradas",
+                font=("Segoe UI", 13, "bold"),
+                bg=BLANCO,
+                fg=TEXTO,
+            ).pack(anchor="w", pady=(10, 10))
+
+            columnas = (
+                "identificador",
+                "cliente",
+                "servicio",
+                "duracion",
+                "estado",
+                "costo",
+            )
+
+            tabla_reservas = ttk.Treeview(
+                tarjeta_reservas,
+                columns=columnas,
+                show="headings",
+                height=8,
+            )
+
+            tabla_reservas.heading("identificador", text="ID")
+            tabla_reservas.heading("cliente", text="Cliente")
+            tabla_reservas.heading("servicio", text="Servicio")
+            tabla_reservas.heading("duracion", text="Duración")
+            tabla_reservas.heading("estado", text="Estado")
+            tabla_reservas.heading("costo", text="Costo")
+
+            tabla_reservas.column("identificador", width=90)
+            tabla_reservas.column("cliente", width=150)
+            tabla_reservas.column("servicio", width=150)
+            tabla_reservas.column("duracion", width=90, anchor="center")
+            tabla_reservas.column("estado", width=100, anchor="center")
+            tabla_reservas.column("costo", width=120, anchor="e")
+
+            tabla_reservas.pack(fill="both", expand=True)
+
+            # Actualizar el contenido de la tabla
+            def actualizar_tabla_reservas():
+
+                for elemento in tabla_reservas.get_children():
+                    tabla_reservas.delete(elemento)
+
+                for reserva in gestor_reservas.listar_reservas():
+
+                    tabla_reservas.insert(
+                        "",
+                        "end",
+                        iid=reserva.identificador,
+                        values=(
+                            reserva.identificador,
+                            reserva.cliente.nombre,
+                            reserva.servicio.nombre,
+                            reserva.duracion,
+                            reserva.estado,
+                            f"${reserva.costo:,.0f}",
+                        ),
+                    )
+
+            # Registrar una nueva reserva
+            def registrar_reserva_interfaz():
+
+                try:
+                    indice_cliente = selector_cliente.current()
+                    indice_servicio = selector_servicio.current()
+
+                    if indice_cliente < 0:
+                        raise DatosInvalidosError("Debe seleccionar un cliente.")
+
+                    if indice_servicio < 0:
+                        raise DatosInvalidosError("Debe seleccionar un servicio.")
+
+                    cliente = clientes_disponibles[indice_cliente]
+                    servicio = servicios_disponibles[indice_servicio]
+
+                    duracion = float(entrada_duracion.get())
+
+                    # Generar identificador automatico
+                    numeros = []
+
+                    for reserva in gestor_reservas.listar_reservas():
+                        try:
+                            numero = int(reserva.identificador.split("-")[1])
+                            numeros.append(numero)
+                        except (IndexError, ValueError):
+                            continue
+
+                    siguiente_numero = max(numeros, default=0) + 1
+                    identificador = f"RES-{siguiente_numero:03d}"
+
+                    # Crear y registrar la reserva
+                    reserva = Reserva(identificador, cliente, servicio, duracion)
+
+                    resultado = gestor_reservas.registrar_reserva(reserva)
+
+                    messagebox.showinfo(
+                        "Registro exitoso",
+                        f"{resultado}\nIdentificador: {identificador}",
+                    )
+
+                    entrada_duracion.delete(0, tk.END)
+                    selector_cliente.set("")
+                    selector_servicio.set("")
+
+                    actualizar_tabla_reservas()
+
+                except ValueError:
+                    messagebox.showerror(
+                        "Datos inválidos",
+                        "La duración debe contener un valor numérico.",
+                    )
+
+                except ErrorSistema as error:
+                    messagebox.showerror("Error en el registro", str(error))
+
+            # Obtener la reserva seleccionada en la tabla
+            def obtener_reserva_seleccionada():
+
+                seleccion = tabla_reservas.selection()
+
+                if not seleccion:
+                    messagebox.showwarning(
+                        "Selección requerida",
+                        "Seleccione una reserva de la tabla.",
+                    )
+                    return None
+
+                return gestor_reservas.buscar_reserva(seleccion[0])
+
+            # Confirmar reserva
+            def confirmar_reserva_interfaz():
+
+                reserva = obtener_reserva_seleccionada()
+
+                if reserva is None:
+                    return
+
+                try:
+                    resultado = reserva.confirmar()
+                    messagebox.showinfo("Reserva", resultado)
+                    actualizar_tabla_reservas()
+
+                except ErrorSistema as error:
+                    messagebox.showerror("Error", str(error))
+
+            # Cancelar reserva
+            def cancelar_reserva_interfaz():
+
+                reserva = obtener_reserva_seleccionada()
+
+                if reserva is None:
+                    return
+
+                try:
+                    resultado = reserva.cancelar()
+                    messagebox.showinfo("Reserva", resultado)
+                    actualizar_tabla_reservas()
+
+                except ErrorSistema as error:
+                    messagebox.showerror("Error", str(error))
+
+            # Procesar reserva
+            def procesar_reserva_interfaz():
+
+                reserva = obtener_reserva_seleccionada()
+
+                if reserva is None:
+                    return
+
+                try:
+                    resultado = reserva.procesar()
+
+                    messagebox.showinfo(
+                        "Reserva procesada",
+                        f"Reserva procesada correctamente.\n"
+                        f"Costo total: ${resultado:,.0f}",
+                    )
+
+                    actualizar_tabla_reservas()
+
+                except ErrorSistema as error:
+                    messagebox.showerror("Error", str(error))
+
+            # Contenedor de botones
+            marco_botones_reserva = tk.Frame(tarjeta_reservas, bg=BLANCO)
+            marco_botones_reserva.pack(fill="x", pady=(15, 0))
+
+            # Boton para registrar
+            tk.Button(
+                marco_botones_reserva,
+                text="+ Registrar reserva",
+                command=registrar_reserva_interfaz,
+                bg=AZUL_PRINCIPAL,
+                fg=BLANCO,
+                relief="flat",
+                padx=15,
+                pady=8,
+                cursor="hand2",
+            ).pack(side="left", padx=(0, 8))
+
+            # Boton para confirmar
+            tk.Button(
+                marco_botones_reserva,
+                text="Confirmar",
+                command=confirmar_reserva_interfaz,
+                bg="#0F766E",
+                fg=BLANCO,
+                relief="flat",
+                padx=15,
+                pady=8,
+                cursor="hand2",
+            ).pack(side="left", padx=8)
+
+            # Boton para cancelar
+            tk.Button(
+                marco_botones_reserva,
+                text="Cancelar",
+                command=cancelar_reserva_interfaz,
+                bg="#DC2626",
+                fg=BLANCO,
+                relief="flat",
+                padx=15,
+                pady=8,
+                cursor="hand2",
+            ).pack(side="left", padx=8)
+
+            # Boton para procesar
+            tk.Button(
+                marco_botones_reserva,
+                text="Procesar",
+                command=procesar_reserva_interfaz,
+                bg=AZUL_OSCURO,
+                fg=BLANCO,
+                relief="flat",
+                padx=15,
+                pady=8,
+                cursor="hand2",
+            ).pack(side="left", padx=8)
+
+            # Mostrar las reservas existentes
+            actualizar_tabla_reservas()
 
         # MÓDULO DE CLIENTES
         if nombre == "Clientes":
