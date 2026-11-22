@@ -391,12 +391,11 @@ class AlquilerEquipo(Servicio):
         if (
             not isinstance(unidades_disponibles, int)
             or isinstance(unidades_disponibles, bool)
-            or unidades_disponibles < 0
+            or unidades_disponibles <= 0
         ):
             raise DatosInvalidosError(
-                "Las unidades disponibles deben ser un entero igual o mayor que cero."
+                "Las unidades disponibles deben ser un entero mayor que cero."
             )
-
         self._unidades_disponibles = unidades_disponibles
 
     # PROPIEDAD: UNIDADES DISPONIBLES
@@ -1320,7 +1319,13 @@ def iniciar_interfaz():
                     # Obtener los datos generales del formulario
                     tipo = tipo_servicio.get()
                     nombre_servicio = entrada_nombre_servicio.get().strip()
-                    tarifa = float(entrada_tarifa_servicio.get())
+                    # Obtener y validar la tarifa base
+                    try:
+                        tarifa = float(entrada_tarifa_servicio.get())
+                    except ValueError:
+                        raise DatosInvalidosError(
+                            "La tarifa base debe ser un valor numérico válido."
+                        )
 
                     # Verificar que se haya seleccionado un tipo
                     if not tipo:
